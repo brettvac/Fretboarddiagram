@@ -1,6 +1,6 @@
-# Fretboard Scale Diagram
+# Fretboard Diagram
 
-A Joomla 5+ content plugin that converts a custom `{fretboardscalediagram}` shortcode into an inline SVG guitar fretboard diagram.
+A Joomla 5+ content plugin that converts a custom `{fretboarddiagram}` shortcode into an inline SVG guitar fretboard diagram.
 
 The plugin is designed for displaying guitar scale patterns and/or chord diagrams directly inside Joomla articles without requiring an external image, canvas element, or JavaScript-based drawing library.
 
@@ -9,9 +9,9 @@ The plugin is designed for displaying guitar scale patterns and/or chord diagram
 The plugin recognizes content enclosed by:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 ...
-{/fretboardscalediagram}
+{/fretboardediagram}
 ```
 
 and replaces it with a generated SVG representation of a six-string guitar fretboard.
@@ -19,9 +19,9 @@ and replaces it with a generated SVG representation of a six-string guitar fretb
 For example:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
+{/fretboarddiagram}
 ```
 
 is converted into an inline SVG fretboard diagram.
@@ -42,17 +42,17 @@ The generated diagram is responsive and can scale with its containing element.
 The basic syntax is:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 STRING:FRET(SCALE_DEGREE)[FINGER],FRET(SCALE_DEGREE)[FINGER] | ...
-{/fretboardscalediagram}
+{/fretboarddiagram}
 ```
 
 A complete example:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
+{/fretboarddiagram}
 ```
 
 The notation is intentionally compact so that scale diagrams can be written directly in Joomla article content.
@@ -271,7 +271,7 @@ and:
 The supplied example is:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
 {/fretboardscalediagram}
 ```
@@ -789,7 +789,7 @@ This is a conceptual grammar rather than a formal parser specification, but it d
 ## Two notes on each string
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
 {/fretboardscalediagram}
 ```
@@ -797,7 +797,7 @@ This is a conceptual grammar rather than a formal parser specification, but it d
 ## Three notes on a string
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
 {/fretboardscalediagram}
 ```
@@ -815,7 +815,7 @@ The plugin is intentionally divided into several conceptual responsibilities:
 Find:
 
 ```text
-{fretboardscalediagram}
+{fretboarddiagram}
 ...
 {/fretboardscalediagram}
 ```
