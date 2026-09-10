@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "plg_content_fretboarddiagram",
+  "version": "1.0",
+  "description": "Fretboard Diagram Content Plugin assets",
+  "license": "GPL-2.0",
+  "assets": [
+    {
+      "name": "plg_content_fretboarddiagram.fretboarddiagram",
+      "type": "style",
+      "uri": "plg_content_fretboarddiagram/fretboarddiagram.css",
+      "version": "1.0"
+    }
+  ]
+}

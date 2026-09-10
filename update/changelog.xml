@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelogs>
+    <changelog>
+        <element>fretboarddiagram</element>
+        <type>plugin</type>
+        <version>1.0</version>
+        <addition>
+            <item>Initial release of the Fretboard Diagram content plugin. Supports shortcodes for responsive SVG guitar scale and chord diagrams. Also allows configurable chord and scale diagram widths.</item>
+        </addition>
+        <note>
+            <item>Compatible with Joomla 5 and up.</item>
+        </note>
+    </changelog>
+</changelogs>

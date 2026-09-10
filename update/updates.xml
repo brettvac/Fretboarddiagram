@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<updates>
+    <update>
+        <name>Fretboard Diagram</name>
+        <description>Updates for the Fretboard Diagram content plugin.</description>
+        <element>fretboarddiagram</element>
+        <type>plugin</type>
+        <folder>content</folder>
+        <version>1.0</version>
+        <client>site</client>
+        <downloads>
+            <downloadurl type="full" format="zip">https://github.com/brettvac/fretboarddiagram/releases/download/1.0/plg_content_fretboarddiagram.zip</downloadurl>
+        </downloads>
+        <infourl title="Fretboard Diagram Plugin">https://github.com/brettvac/fretboarddiagram</infourl>
+        <changelogurl>https://raw.githubusercontent.com/brettvac/fretboarddiagram/refs/heads/main/update/changelog.xml</changelogurl>
+        <targetplatform name="joomla" version="5\..*|6\..*"/>
+        <php_minimum>8.1.0</php_minimum>
+    </update>
+</updates>
