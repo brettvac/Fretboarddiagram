@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Fretboard Diagram Content Plugin
- * @version    1.0
+ * @version    1.1
  * @license    GNU General Public License version 2
  */
 namespace Naftee\Plugin\Content\Fretboarddiagram\Extension;
@@ -13,8 +13,7 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\SubscriberInterface;
 
 /**
- * Content plugin which replaces a Fretboard Scale Diagram shortcode
- * with an inline SVG guitar fretboard diagram.
+ * Content plugin which replaces a Fretboard Scale Diagram shortcode with an inline SVG guitar fretboard diagram.
  */
 final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
 {
@@ -93,7 +92,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
         $content = trim($content);
         $content = strip_tags(html_entity_decode($content));
 
-        // Format 3: Name:StartFret(strings)
+        // A movable chord shape specifies the starting fret before parentheses, followed by the six string positions inside them.
         if (preg_match('/^([^:]+):\s*(\d+)\(([^)]+)\)$/', $content, $matches)) {
             return [
                 'name'    => trim($matches[1]),
@@ -102,11 +101,11 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             ];
         }
 
-        // Format 2: Name:strings
+        // An open-position chord lists the six string positions directly after the chord name, separated by semicolons.
         if (preg_match('/^([^:]+):\s*(.+)$/', $content, $matches)) {
             $stringsStr = $matches[2];
 
-            // Format 1 (scales) uses commas/pipes, chords use semicolons
+            // Chord string data uses semicolons to separate the six string positions.
             if (strpos($stringsStr, ';') !== false) {
                 return [
                     'name'    => trim($matches[1]),
@@ -119,6 +118,12 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
         return null;
     }
 
+    /**
+     * Parses the six string positions of a chord.
+     *
+     * Each position can be x for muted, o or 0 for open, or a fret number optionally
+     * followed by [finger] to specify the fretting-hand finger.
+     */
     private function parseChordStrings(string $stringsData): array
     {
         $strings = [];
@@ -266,7 +271,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                             . $finger
                             . '</text>';
 
-                        // Group fretted notes to detect barres
+                        // Group notes by fret and finger so matching notes can be rendered as a barre.
                         $groupKey = $diagramFret . '_' . $finger;
                         $fingerGroups[$groupKey][] = [
                             'x'           => $xFloat,
@@ -277,7 +282,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             }
         }
 
-        // Generate barre arcs for finger groups with 2 or more strings
+        // Draw a barre when the same finger is assigned to two or more strings on the same fret.
         $barres = [];
         foreach ($fingerGroups as $group) {
             if (count($group) >= 2) {
@@ -300,7 +305,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             }
         }
 
-        // Render barres, dots, and finger numbers in order
+        // Draw barres first, followed by the individual fret markers and finger numbers.
         foreach ($barres as $barre) {
             $svg[] = $barre;
         }
@@ -347,8 +352,9 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                 continue;
             }
 
+            // Find every note in the string data and extract its fret number, scale degree, and finger number.
             preg_match_all(
-                '/(\d+)\((\d+)\)\[(\d+)\]/',
+                '/(\d+)\((\d+)\)\[(\d+|T)\]/',
                 $parts[1],
                 $matches,
                 PREG_SET_ORDER
@@ -359,15 +365,13 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             foreach ($matches as $match) {
                 $fret   = (int) $match[1];
                 $degree = (int) $match[2];
-                $finger = (int) $match[3];
+                $finger = $match[3];
 
+                // Ignore notes with invalid fret, scale degree, or finger numbers.
                 if (
-                    $fret < 0 ||
-                    $fret > 30 ||
-                    $degree < 0 ||
-                    $degree > 99 ||
-                    $finger < 0 ||
-                    $finger > 9
+                    $fret < 0 || $fret > 24 ||       // Fret: 0–24
+                    $degree < 1 || $degree > 99 ||   // Scale degree: 1–99
+                    ($finger !== 'T' && ($finger < 0 || $finger > 5)) // Finger: 0–5 or T for thumb
                 ) {
                     continue;
                 }
@@ -428,11 +432,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
 
         $fretCount = max(1, $displayEnd - $displayStart + 1);
 
-        /*
-         * Internal SVG coordinate system.
-         *
-         * All drawing coordinates are based on 760 × 330, but the SVG itself can be rendered at any configured width while retaining this aspect ratio.
-         */
+        // Internal SVG coordinate system. All drawing coordinates are based on 760 × 330, but the SVG itself can be rendered at any configured width while retaining this aspect ratio.
         $viewBoxWidth  = 760;
         $viewBoxHeight = 330;
 
@@ -526,8 +526,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                 . '</text>';
         }
 
-        // Fret numbers.
-        // This uses the internal viewBox height, not the configured rendered height, so the label scales correctly with the SVG.
+        // Fret numbers. This uses the internal viewBox height, not the configured rendered height, so the label scales correctly with the SVG.
         for ($fret = $displayStart; $fret <= $displayEnd; $fret++) {
             $x = $left + (($fret - $displayStart + 0.5) * $fretWidth);
 

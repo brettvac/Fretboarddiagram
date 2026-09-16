@@ -1,3 +1,30 @@
+:root {
+    /* Fretboard scale diagram colours */
+    --fretboarddiagram-scale-background: #ffffff;
+    --fretboarddiagram-scale-board-fill: #ffffff;
+    --fretboarddiagram-scale-board-stroke: #b9b9b9;
+    --fretboarddiagram-scale-fret-line: #d2d2d2;
+    --fretboarddiagram-scale-fret-line-edge: #999999;
+    --fretboarddiagram-scale-string: #333333;
+    --fretboarddiagram-scale-string-label: #555555;
+    --fretboarddiagram-scale-fret-label: #555555;
+    --fretboarddiagram-scale-note: #454545;
+    --fretboarddiagram-scale-note-root: #a62929;
+    --fretboarddiagram-scale-finger: #ffffff;
+
+    /* Fretboard chord diagram colours */
+    --fretboarddiagram-chord-grid: #000000;
+    --fretboarddiagram-chord-nut-fill: #000000;
+    --fretboarddiagram-chord-nut-stroke: #000000;
+    --fretboarddiagram-chord-start-fret: #000000;
+    --fretboarddiagram-chord-muted: #000000;
+    --fretboarddiagram-chord-open: #000000;
+    --fretboarddiagram-chord-fretted: #000000;
+    --fretboarddiagram-chord-finger: #ffffff;
+    --fretboarddiagram-chord-name: #333333;
+    --fretboarddiagram-chord-barre: #000000;
+}
+
 .fretboard-scale-diagram {
     max-width: 100%;
     margin: 1.5rem auto;
@@ -9,39 +36,32 @@
     height: auto;
 }
 
-/* Background for scale view*/
-
+/* Background for scale view */
 .fretboard-scale-background {
-    fill: #ffffff;
+    fill: var(--fretboarddiagram-scale-background);
 }
 
-
 /* Fretboard */
-
 .fretboard-scale-board {
-    fill: #ffffff;
-    stroke: #b9b9b9;
+    fill: var(--fretboarddiagram-scale-board-fill);
+    stroke: var(--fretboarddiagram-scale-board-stroke);
     stroke-width: 2;
 }
 
-
 /* Frets */
-
 .fretboard-scale-fret-line {
-    stroke: #d2d2d2;
+    stroke: var(--fretboarddiagram-scale-fret-line);
     stroke-width: 1.5;
 }
 
 .fretboard-scale-fret-line--edge {
-    stroke: #999999;
+    stroke: var(--fretboarddiagram-scale-fret-line-edge);
     stroke-width: 2.5;
 }
 
-
 /* Strings */
-
 .fretboard-scale-string {
-    stroke: #333333;
+    stroke: var(--fretboarddiagram-scale-string);
     stroke-width: 2;
 }
 
@@ -49,46 +69,37 @@
     stroke-width: 3;
 }
 
-
 /* String numbers */
-
 .fretboard-scale-string-label {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: 700;
-    fill: #555555;
+    fill: var(--fretboarddiagram-scale-string-label);
 }
 
-
 /* Fret numbers */
-
 .fretboard-scale-fret-label {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 17px;
-    fill: #555555;
+    fill: var(--fretboarddiagram-scale-fret-label);
 }
 
-
 /* Scale notes */
-
 .fretboard-scale-note {
-    fill: #454545;
+    fill: var(--fretboarddiagram-scale-note);
 }
 
 .fretboard-scale-note--root {
-    fill: #a62929;
+    fill: var(--fretboarddiagram-scale-note-root);
 }
 
-
 /* Fingering numbers */
-
 .fretboard-scale-finger {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: 700;
-    fill: #ffffff;
+    fill: var(--fretboarddiagram-scale-finger);
 }
-
 
 .fretboard-chord-svg {
     display: block;
@@ -98,71 +109,63 @@
     /* Additional viewBox space is handled by the SVG itself. */
 }
 
-
 /* Chord group */
 .fretboard-chord-group {
 }
 
-
 /* Chord fretboard grid */
 .fretboard-chord-grid {
     fill: none;
-    stroke: #000000;
+    stroke: var(--fretboarddiagram-chord-grid);
     stroke-width: 0.53318757;
     stroke-linecap: round;
     stroke-linejoin: miter;
     stroke-miterlimit: 10;
 }
 
-
 /* Nut */
 .fretboard-chord-nut {
-    fill: #000000;
-    stroke: #000000;
+    fill: var(--fretboarddiagram-chord-nut-fill);
+    stroke: var(--fretboarddiagram-chord-nut-stroke);
     stroke-width: 0.53318757;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-miterlimit: 10;
 }
 
-
 /* Starting fret number */
 .fretboard-chord-start-fret {
     font-family: sans-serif;
     font-size: 8px;
     font-weight: 700;
-    fill: #000000;
+    fill: var(--fretboarddiagram-chord-start-fret);
 }
-
 
 /* Muted strings */
 .fretboard-chord-muted {
     fill: none;
-    stroke: #000000;
+    stroke: var(--fretboarddiagram-chord-muted);
     stroke-width: 0.944398;
 }
-
 
 /* Open strings */
 .fretboard-chord-open {
     fill: none;
-    stroke: #000000;
+    stroke: var(--fretboarddiagram-chord-open);
     stroke-width: 0.769137;
 }
 
-
 /* Fretted notes */
 .fretboard-chord-fretted {
-    fill: #000000;
+    fill: var(--fretboarddiagram-chord-fretted);
 }
-
 
 /* Finger numbers */
 .fretboard-chord-finger {
     font-family: sans-serif;
     font-size: 6.5px;
     font-weight: 700;
-    fill: #ffffff;
+    fill: var(--fretboarddiagram-chord-finger);
 }
 
 /* Chord Name Header */
@@ -170,13 +173,13 @@
     font-family: Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: 700;
-    fill: #333333;
+    fill: var(--fretboarddiagram-chord-name);
 }
 
 /* Barre Arc */
 .fretboard-chord-barre {
     fill: none;
-    stroke: #000000;
+    stroke: var(--fretboarddiagram-chord-barre);
     stroke-width: 1.5;
     stroke-linecap: round;
 }

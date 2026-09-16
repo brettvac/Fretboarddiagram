@@ -4,6 +4,7 @@
  * @license    GNU General Public License version 2
  */
 
+// No direct access
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Extension\PluginInterface;
@@ -12,6 +13,7 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
+
 use Naftee\Plugin\Content\Fretboarddiagram\Extension\Fretboarddiagram;
 
 return new class() implements ServiceProviderInterface
@@ -21,6 +23,7 @@ return new class() implements ServiceProviderInterface
         $container->set(
             PluginInterface::class,
             function (Container $container) {
+              
                 $config  = (array) PluginHelper::getPlugin('content', 'fretboarddiagram');
                 $subject = $container->get(DispatcherInterface::class);
                 $app     = Factory::getApplication();
