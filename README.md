@@ -291,59 +291,6 @@ The root/tonic is represented by scale degree `1`.
 
 The renderer highlights degree `1` to make the root notes immediately distinguishable from the other scale degrees.
 
----
-
-# Parsing
-
-The content is parsed into a structured PHP array before being passed to the renderer.
-
-Conceptually, the parsed data looks like:
-
-```php
-[
-    6 => [
-        [
-            'fret'   => 5,
-            'degree' => 1,
-            'finger' => 1,
-        ],
-        [
-            'fret'   => 8,
-            'degree' => 3,
-            'finger' => 4,
-        ],
-    ],
-
-    5 => [
-        [
-            'fret'   => 5,
-            'degree' => 4,
-            'finger' => 1,
-        ],
-        [
-            'fret'   => 7,
-            'degree' => 5,
-            'finger' => 3,
-        ],
-    ],
-
-    // ...
-]
-```
-
-The parser therefore separates the concerns of:
-
-1. Reading the shortcode.
-2. Validating the input.
-3. Converting the text into structured data.
-4. Rendering the structured data as SVG.
-
-This separation makes the renderer independent of the original shortcode syntax.
-
----
-
-# `parseFretboard()`
-
 The main parsing method is responsible for converting the string representation into the internal array structure.
 
 Its return type is:
@@ -381,22 +328,6 @@ The parser:
 - stores each valid note in the resulting array.
 
 Invalid string definitions and invalid individual notes are skipped rather than causing the entire diagram to fail.
-
----
-
-# Input Sanitization
-
-Before parsing, the content is normalized with:
-
-```php
-$content = strip_tags(html_entity_decode($content));
-```
-
-This allows the parser to work with content that may have passed through Joomla's HTML processing or entity encoding.
-
-HTML markup is removed before the notation is interpreted.
-
-The shortcode itself is therefore intended to contain plain notation rather than HTML.
 
 ---
 
@@ -447,43 +378,6 @@ These ranges are deliberately implemented at the parser level so that malformed 
 
 The limits can be adjusted later if the diagram format needs to support a broader range.
 
----
-
-# Rendering
-
-After parsing, the structured data is passed to the SVG renderer.
-
-The renderer creates an **inline SVG** rather than an external image.
-
-This has several advantages:
-
-- the diagram remains part of the HTML document;
-- the diagram can scale responsively;
-- individual SVG elements can be styled with CSS;
-- no image file needs to be generated or stored;
-- the diagram remains sharp at different display sizes;
-- the renderer can potentially expose individual notes or strings to accessibility tools;
-- future interactivity can be added without changing the shortcode format.
-
-The SVG is intended to behave like an inline component within the Joomla article.
-
----
-
-# Responsive Behavior
-
-The generated fretboard is designed to be responsive.
-
-The SVG should scale to the available width of its containing element rather than requiring a fixed pixel width.
-
-This makes the diagram suitable for:
-
-- desktop displays;
-- tablets;
-- mobile phones;
-- responsive Joomla templates;
-- articles displayed inside different content-column widths.
-
-The renderer should maintain the correct aspect ratio while scaling.
 
 ---
 
@@ -517,8 +411,8 @@ This distinction is intentional:
 
 ```text
 5(1)[1]
-│ │   │
-│ │   └── fingering information
+│ │  │
+│ │  └── fingering information
 │ └────── scale degree displayed in the circle
 └──────── fret position
 ```
@@ -621,77 +515,6 @@ For example, input such as:
 can still be normalized into numerical string order.
 
 The renderer is responsible for mapping those string numbers to their visual positions, with string 6 at the top and string 1 at the bottom.
-
----
-
-# Joomla Integration
-
-The plugin uses Joomla's modern event-based plugin architecture.
-
-It implements:
-
-```php
-ContentPrepareEvent
-```
-
-and:
-
-```php
-SubscriberInterface
-```
-
-# Why `SubscriberInterface` Is Used
-
-The plugin uses Joomla's:
-
-```php
-SubscriberInterface
-```
-
-to declare the events to which the plugin subscribes.
-
-This is the preferred Joomla 5+ event subscription approach and keeps the plugin compatible with Joomla's current event-dispatching architecture.
-
-The plugin therefore avoids depending on older event-handling conventions where possible.
-
----
-
-# Extensibility
-
-The notation is deliberately separated from the SVG renderer.
-
-The shortcode describes the musical information:
-
-```text
-string
-fret
-scale degree
-finger
-```
-
-while the renderer determines how that information is displayed.
-
-This makes it possible to add future rendering features without changing the underlying shortcode format.
-
-Potential future features include:
-
-- displaying finger numbers;
-- displaying note names;
-- displaying interval names;
-- highlighting different scale degrees;
-- displaying fret numbers;
-- displaying the nut;
-- displaying additional frets;
-- showing open strings;
-- supporting muted strings;
-- adding CSS classes to individual notes;
-- adding SVG accessibility labels;
-- supporting different diagram styles;
-- supporting chord diagrams using the same rendering infrastructure;
-- adding optional color schemes;
-- adding scale names or titles;
-- adding tuning information;
-- supporting left-handed diagrams.
 
 ---
 
@@ -920,78 +743,3 @@ String 6:
 ```
 
 This makes the shortcode useful as a textual representation of the scale pattern as well as an instruction to the renderer.
-
----
-
-# Current Renderer Behavior
-
-The first renderer has deliberately limited visual responsibilities.
-
-It:
-
-1. draws the fretboard;
-2. positions notes according to their fret and string;
-3. displays the scale degree inside each note circle;
-4. visually highlights scale degree `1`;
-5. produces inline SVG;
-6. allows the resulting diagram to scale responsively.
-
-The finger information is parsed and preserved but is not currently displayed as the primary label.
-
-This separation leaves room for future renderer variations without requiring a change to the shortcode data format.
-
----
-
-# Future Compatibility
-
-When adding features, the existing notation should remain backward compatible whenever possible.
-
-For example, this:
-
-```text
-6:5(1)[1],8(3)[4]
-```
-
-should continue to mean exactly the same thing even if a future renderer adds:
-
-- finger numbers;
-- note names;
-- colors;
-- accessibility information;
-- interactive elements.
-
-New optional features should preferably be added without changing the meaning of existing notation.
-
----
-
-# Summary
-
-**Fretboard Scale Diagram** is a Joomla 5+ content plugin that turns compact guitar scale notation into responsive inline SVG fretboard diagrams.
-
-The notation uses:
-
-```text
-STRING:FRET(SCALE_DEGREE)[FINGER]
-```
-
-with:
-
-- `1:`–`6:` identifying guitar strings;
-- `:` separating the string number from its notes;
-- fret numbers identifying fret positions;
-- `(degree)` identifying the scale degree;
-- `[finger]` identifying the suggested fingering;
-- commas separating multiple notes on one string;
-- pipes separating different strings.
-
-The internal representation preserves all three musical properties of every note:
-
-```text
-fret
-degree
-finger
-```
-
-The initial renderer displays the **scale degree** in each note circle and highlights **degree 1** as the root.
-
-The plugin integrates with Joomla's modern event system through `ContentPrepareEvent` and `SubscriberInterface`, allowing diagrams to be embedded naturally within Joomla article content.
