@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension method="upgrade" type="plugin" group="content">
     <name>PLG_CONTENT_FRETBOARDDIAGRAM</name>
-    <version>1.1</version>
+    <version>1.2</version>
     <description>PLG_CONTENT_FRETBOARDDIAGRAM_DESCRIPTION</description>
     <author>Brett</author>
     <creationDate>2026-09-05</creationDate>
     <copyright>(C) 2026 Brett</copyright>
-    <license>GNU General Public License version 2</license>
-    
+    <license>GNU General Public License version 2</license>    
     <namespace path="src">Naftee\Plugin\Content\Fretboarddiagram</namespace>
-
-    <scriptfile>script.php</scriptfile>
-    
+    <scriptfile>script.php</scriptfile>   
     <files>
         <folder plugin="fretboarddiagram">services</folder>
         <folder>src</folder>
     </files>
-
     <languages>
         <language tag="en-GB">language/en-GB/plg_content_fretboarddiagram.ini</language>
         <language tag="en-GB">language/en-GB/plg_content_fretboarddiagram.sys.ini</language>
         <language tag="fr-FR">language/fr-FR/plg_content_fretboarddiagram.ini</language>
         <language tag="fr-FR">language/fr-FR/plg_content_fretboarddiagram.sys.ini</language>
     </languages>
-
     <media destination="plg_content_fretboarddiagram" folder="media">
         <filename>joomla.asset.json</filename>
         <folder>css</folder>
-    </media>
-    
+    </media>   
     <config> 
        <fields name="params"> 
            <fieldset name="basic"> 
@@ -37,9 +31,7 @@
            </fieldset>
        </fields> 
     </config>
-
     <changelogurl>https://raw.githubusercontent.com/brettvac/fretboarddiagram/refs/heads/main/update/changelog.xml</changelogurl>
-
     <updateservers>
         <server type="extension" name="Fretboard Diagram Updates">https://raw.githubusercontent.com/brettvac/fretboarddiagram/refs/heads/main/update/updates.xml</server>
     </updateservers>

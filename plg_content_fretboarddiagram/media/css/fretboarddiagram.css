@@ -59,6 +59,12 @@
     stroke-width: 2.5;
 }
 
+/* Make the leftmost line visibly thicker when open strings are present */
+.fretboard-scale-fret-line--nut {
+    stroke: var(--fretboarddiagram-scale-fret-line-edge);
+    stroke-width: 5;
+}
+
 /* Strings */
 .fretboard-scale-string {
     stroke: var(--fretboarddiagram-scale-string);

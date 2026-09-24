@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    Fretboard Diagram Content Plugin
- * @version    1.1
+ * @version    1.2
  * @license    GNU General Public License version 2
  */
 namespace Naftee\Plugin\Content\Fretboarddiagram\Extension;
@@ -389,127 +389,124 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
         
     }
 
+    /**
+     * Render a fretboard scale (or chord) diagram as SVG markup.
+     *
+     * Open-string notes (fret 0) are drawn to the left of the nut and do not participate in the displayed fret range calculation. When any open
+     * strings are present the leftmost fret line is treated as the nut and the first displayed fret is always 1.
+     *
+     * @param  string $content  Raw diagram content (chord or scale notation).
+     * @return string           Complete HTML/SVG markup for the diagram.
+     */
     private function renderDiagram(string $content): string
     {
         // Try to parse the new chord formats first.
         $chord = $this->parseChord($content);
-
         if ($chord !== null) {
             $width = (int) $this->params->get('chorddiagramwidth', 245);
             return $this->renderChordDiagram($chord, $width);
         }
-
         // Fallback to the existing scale generator logic.
         $fretboard = $this->parseFretboard($content);
-
         if ($fretboard === []) {
             return '<!-- Fretboard scale diagram: no valid notes found. -->';
         }
-
         $frets = [];
-
+        $hasOpenStrings = false;
         foreach ($fretboard as $notes) {
             foreach ($notes as $note) {
-                $frets[] = $note['fret'];
+                if ($note['fret'] === 0) {
+                    $hasOpenStrings = true;
+                } else {
+                    $frets[] = $note['fret'];
+                }
             }
         }
-
-        if ($frets === []) {
+        // Open strings do not count as a fret position.
+        if ($frets === [] && !$hasOpenStrings) {
             return '<!-- Fretboard scale diagram: no valid notes found. -->';
         }
-
-        $minFret = min($frets);
-        $maxFret = max($frets);
-
+        // When open strings are present, the nut is always the leftmost fretboard line
+        // and the first displayed fret is fret 1.
+        if ($hasOpenStrings) {
+            $displayStart = 1;
+            $maxFret = $frets !== [] ? max($frets) : 1;
+        } else {
+            $minFret = min($frets);
+            $maxFret = max($frets);
+            $displayStart = $minFret;
+        }
         // Normally show five fret positions, with one fret of context immediately after the highest plotted fret.
-        $displayStart = $minFret;
-        $displayEnd   = max($maxFret + 1, $displayStart + 4);
-
+        $displayEnd = max($maxFret + 1, $displayStart + 4);
         // Prevent an accidentally huge diagram if a very wide range is supplied.
         if (($displayEnd - $displayStart) > 12) {
             $displayEnd = $maxFret + 1;
         }
-
         $fretCount = max(1, $displayEnd - $displayStart + 1);
-
         // Internal SVG coordinate system. All drawing coordinates are based on 760 × 330, but the SVG itself can be rendered at any configured width while retaining this aspect ratio.
         $viewBoxWidth  = 760;
         $viewBoxHeight = 330;
-
         // Configured displayed width.
         $width = (int) $this->params->get('scalediagramwidth', $viewBoxWidth);
-
         if ($width < 1) {
             $width = $viewBoxWidth;
         }
-
         // Preserve the original 760 × 330 aspect ratio.
         $height = round(
             $width * $viewBoxHeight / $viewBoxWidth
         );
-
         // Fretboard layout within the internal 760 × 330 coordinate system.
         $left   = 92;
         $right  = 28;
         $top    = 42;
         $bottom = 55;
-
         $fretWidth = ($viewBoxWidth - $left - $right) / $fretCount;
         $stringGap = ($viewBoxHeight - $top - $bottom) / 5;
-
         $boardX = $left;
         $boardY = $top;
         $boardW = $viewBoxWidth - $left - $right;
         $boardH = $stringGap * 5;
-
         $svg = [];
-
         // Fretboard diagram container.
         $svg[] = '<div class="fretboard-scale-diagram">';
-
         $svg[] = '<svg class="fretboard-scale-svg" xmlns="http://www.w3.org/2000/svg"'
             . ' width="' . $this->number($width) . '"'
             . ' height="' . $this->number($height) . '"'
             . ' viewBox="0 0 ' . $viewBoxWidth . ' ' . $viewBoxHeight . '"'
             . ' role="img" aria-label="Guitar fretboard scale diagram">';
-
         $svg[] = '<title>Guitar fretboard scale diagram</title>';
-
         // Background.
         $svg[] = '<rect class="fretboard-scale-background"'
             . ' x="0"'
             . ' y="0"'
             . ' width="' . $this->number($viewBoxWidth) . '"'
             . ' height="' . $this->number($viewBoxHeight) . '"/>';
-
         // Fretboard.
         $svg[] = '<rect class="fretboard-scale-board"'
             . ' x="' . $this->number($boardX) . '"'
             . ' y="' . $this->number($boardY) . '"'
             . ' width="' . $this->number($boardW) . '"'
             . ' height="' . $this->number($boardH) . '"/>';
-
         // Fret lines.
         for ($i = 0; $i <= $fretCount; $i++) {
-            $x    = $left + ($i * $fretWidth);
-            $edge = ($i === 0 || $i === $fretCount);
-
+            $x = $left + ($i * $fretWidth);
+            // When open strings are present, the leftmost line is the nut.
+            $isNut = ($hasOpenStrings && $i === 0);
+            $edge  = ($i === 0 || $i === $fretCount);
             $svg[] = '<line class="fretboard-scale-fret-line'
                 . ($edge ? ' fretboard-scale-fret-line--edge' : '')
+                . ($isNut ? ' fretboard-scale-fret-line--nut' : '')
                 . '"'
                 . ' x1="' . $this->number($x) . '"'
                 . ' y1="' . $this->number($boardY) . '"'
                 . ' x2="' . $this->number($x) . '"'
                 . ' y2="' . $this->number($boardY + $boardH) . '"/>';
         }
-
         // Strings: 1st at top, 6th at bottom.
         for ($string = 1; $string < 7; $string++) {
             $row = $string - 1;
             $y   = $top + ($row * $stringGap);
-
             $thickString = in_array($string, [6, 5], true);
-
             $svg[] = '<line class="fretboard-scale-string'
                 . ($thickString ? ' fretboard-scale-string--thick' : '')
                 . '"'
@@ -517,19 +514,16 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                 . ' y1="' . $this->number($y) . '"'
                 . ' x2="' . $this->number($boardX + $boardW) . '"'
                 . ' y2="' . $this->number($y) . '"/>';
-
             $svg[] = '<text class="fretboard-scale-string-label"'
-                . ' x="' . $this->number($left - 24) . '"'
+                . ' x="' . $this->number($left - 42) . '"'
                 . ' y="' . $this->number($y + 6) . '"'
                 . ' text-anchor="middle">'
                 . $string
                 . '</text>';
         }
-
         // Fret numbers. This uses the internal viewBox height, not the configured rendered height, so the label scales correctly with the SVG.
         for ($fret = $displayStart; $fret <= $displayEnd; $fret++) {
             $x = $left + (($fret - $displayStart + 0.5) * $fretWidth);
-
             $svg[] = '<text class="fretboard-scale-fret-label"'
                 . ' x="' . $this->number($x) . '"'
                 . ' y="' . $this->number($viewBoxHeight - 18) . '"'
@@ -537,34 +531,47 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                 . $fret
                 . '</text>';
         }
-
         // Scale dots.
         foreach ($fretboard as $string => $notes) {
             $row = $string - 1;
             $y   = $top + ($row * $stringGap);
-
             foreach ($notes as $note) {
                 $fret = $note['fret'];
-
+                $radius = min(22, $stringGap * 0.34);
+                // Open string: render the note between the string label and the nut.
+                if ($fret === 0) {
+                    $x = $left - 18;
+                    // Degree 1 is the root.
+                    $isRoot = ($note['degree'] === 1);
+                    $svg[] = '<circle class="fretboard-scale-note'
+                        . ($isRoot ? ' fretboard-scale-note--root' : '')
+                        . '"'
+                        . ' cx="' . $this->number($x) . '"'
+                        . ' cy="' . $this->number($y) . '"'
+                        . ' r="' . $this->number($radius) . '"/>';
+                    // Display fingering number. Open strings normally use 0.
+                    $svg[] = '<text class="fretboard-scale-finger"'
+                        . ' x="' . $this->number($x) . '"'
+                        . ' y="' . $this->number($y + 6) . '"'
+                        . ' text-anchor="middle">'
+                        . $this->escape((string) $note['finger'])
+                        . '</text>';
+                    continue;
+                }
+                // Ignore notes outside the displayed fret range.
                 if ($fret < $displayStart || $fret > $displayEnd) {
                     continue;
                 }
-
                 $x = $left
                     + (($fret - $displayStart + 0.5) * $fretWidth);
-
-                $radius = min(22, $stringGap * 0.34);
-
                 // Degree 1 is the root.
                 $isRoot = ($note['degree'] === 1);
-
                 $svg[] = '<circle class="fretboard-scale-note'
                     . ($isRoot ? ' fretboard-scale-note--root' : '')
                     . '"'
                     . ' cx="' . $this->number($x) . '"'
                     . ' cy="' . $this->number($y) . '"'
                     . ' r="' . $this->number($radius) . '"/>';
-
                 // Display fingering number.
                 $svg[] = '<text class="fretboard-scale-finger"'
                     . ' x="' . $this->number($x) . '"'
@@ -574,10 +581,8 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                     . '</text>';
             }
         }
-
         $svg[] = '</svg>';
         $svg[] = '</div>';
-
         return implode("\n", $svg);
     }
 

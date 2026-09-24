@@ -3,6 +3,17 @@
     <changelog>
         <element>fretboarddiagram</element>
         <type>plugin</type>
+        <version>1.2</version>
+        <addition>
+            <item>Added support for displaying open strings in scale diagrams, with open-string notes rendered between the string label and the nut.</item>
+        </addition>
+        <change>
+            <item>Updated scale diagrams to render the nut as the leftmost fretboard line when open strings are present, with fret 1 positioned immediately after the nut.</item>
+        </change>
+    </changelog>
+    <changelog>
+        <element>fretboarddiagram</element>
+        <type>plugin</type>
         <version>1.1</version>
         <addition>
             <item>Added support for specifying the thumb as a fingering using uppercase T in scale diagram shortcodes.</item>
@@ -11,7 +22,6 @@
             <item><![CDATA[Refactored Fretboard Diagram colors into dedicated <code>--fretboarddiagram-*</code> CSS variables, allowing Hoary Theme Switcher to override the diagram colors cleanly in dark mode.]]></item>
         </change>
     </changelog>
-
     <changelog>
         <element>fretboarddiagram</element>
         <type>plugin</type>
