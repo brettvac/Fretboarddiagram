@@ -1,8 +1,8 @@
 # Fretboard Diagram
 
-A Joomla 5+ content plugin that converts a custom `{fretboarddiagram}` shortcode into an inline SVG guitar fretboard diagram.
+Fretboard Diagram is a Joomla 5+ content plugin that converts a `{fretboarddiagram}` shortcode into an inline SVG guitar fretboard diagram.
 
-The plugin is designed for displaying guitar scale patterns and/or chord diagrams directly inside Joomla articles without requiring an external image, canvas element, or JavaScript-based drawing library.
+Use this plugin to easily display guitar scale patterns and/or chord diagrams directly inside Joomla articles without requiring an external image, canvas element, or JavaScript-based drawing library.
 
 ## Overview
 
@@ -16,50 +16,32 @@ The plugin recognizes content enclosed by:
 
 and replaces it with a generated SVG representation of a six-string guitar fretboard.
 
-For example:
+## Complete Example
+
+The supplied example is:
 
 ```text
 {fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboarddiagram}
+{/fretboardscalediagram}
 ```
 
-is converted into an inline SVG fretboard diagram.
+It describes the following notes:
 
-The generated diagram is responsive and can scale with its containing element.
+| String | Notes |
+|---|---|
+| 6 | fret 5, degree 1, finger 1; fret 8, degree 3, finger 4 |
+| 5 | fret 5, degree 4, finger 1; fret 7, degree 5, finger 3 |
+| 4 | fret 5, degree 7, finger 1; fret 7, degree 1, finger 3 |
+| 3 | fret 5, degree 3, finger 1; fret 7, degree 4, finger 3 |
+| 2 | fret 5, degree 5, finger 1; fret 8, degree 7, finger 4 |
+| 1 | fret 5, degree 1, finger 1; fret 8, degree 3, finger 4 |
 
----
+The root/tonic is represented by scale degree `1`.
 
-## Requirements
+The renderer highlights degree `1` to make the root notes immediately distinguishable from the other scale degrees.
 
-- Joomla 5+
-- PHP version supported by the installed Joomla 5 release
-- A standard Joomla template capable of displaying inline SVG
----
-
-# Shortcode Syntax
-
-The basic syntax is:
-
-```text
-{fretboarddiagram}
-STRING:FRET(SCALE_DEGREE)[FINGER],FRET(SCALE_DEGREE)[FINGER] | ...
-{/fretboarddiagram}
-```
-
-A complete example:
-
-```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboarddiagram}
-```
-
-The notation is intentionally compact so that scale diagrams can be written directly in Joomla article content.
-
----
-
-# String Numbers
+### String Numbers
 
 The guitar strings are identified by their standard string numbers:
 
@@ -91,9 +73,7 @@ Only string numbers from `1` through `6` are accepted.
 
 Invalid string numbers are ignored by the parser.
 
----
-
-# Note Syntax
+### Note Syntax
 
 Each note on a string has three components:
 
@@ -127,7 +107,7 @@ means:
 
 The three values have different purposes and should not be confused.
 
-## Fret
+### Frets
 
 The number before the parentheses identifies the fret:
 
@@ -155,11 +135,21 @@ For example:
 
 ```text
 5(1)[1]
+```
+
+represents scale degree 1.
+
+```text
 7(2)[3]
+```
+
+represents scale degree 2.
+
+```text
 9(3)[4]
 ```
 
-represent scale degrees 1, 2, and 3 respectively.
+represents scale degree 3.
 
 The parser currently permits scale degrees from `0` through `99`.
 
@@ -171,20 +161,26 @@ The number inside square brackets identifies the suggested fingering:
 
 ```text
 5(1)[1]
-    ^
-    finger
+     ^
+     finger
 ```
 
 For example:
 
 ```text
 5(1)[1]
-7(3)[4]
 ```
 
 means:
 
 - fret 5, scale degree 1, finger 1
+
+```text
+7(3)[4]
+```
+
+means:
+
 - fret 7, scale degree 3, finger 4
 
 The parser retains the fingering information in the parsed data structure.
@@ -195,7 +191,7 @@ The finger information is nevertheless preserved so that a future renderer can d
 
 ---
 
-# Multiple Notes on a String
+### Multiple Notes on a String
 
 Multiple notes on the same string are separated with commas.
 
@@ -222,7 +218,7 @@ Additional notes can be added in the same way:
 
 ---
 
-# Separating Strings
+### Separating Strings
 
 Individual strings are separated with a pipe character:
 
@@ -264,74 +260,7 @@ and:
 6:5(1)[1],8(3)[4]|5:5(4)[1],7(5)[3]
 ```
 
----
-
-# Complete Example
-
-The supplied example is:
-
-```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
-```
-
-It describes the following notes:
-
-| String | Notes |
-|---|---|
-| 6 | fret 5, degree 1, finger 1; fret 8, degree 3, finger 4 |
-| 5 | fret 5, degree 4, finger 1; fret 7, degree 5, finger 3 |
-| 4 | fret 5, degree 7, finger 1; fret 7, degree 1, finger 3 |
-| 3 | fret 5, degree 3, finger 1; fret 7, degree 4, finger 3 |
-| 2 | fret 5, degree 5, finger 1; fret 8, degree 7, finger 4 |
-| 1 | fret 5, degree 1, finger 1; fret 8, degree 3, finger 4 |
-
-The root/tonic is represented by scale degree `1`.
-
-The renderer highlights degree `1` to make the root notes immediately distinguishable from the other scale degrees.
-
-The main parsing method is responsible for converting the string representation into the internal array structure.
-
-Its return type is:
-
-```php
-array<int, array<int, array{
-    fret:int,
-    degree:int,
-    finger:int
-}>>
-```
-
-In practical terms:
-
-```text
-string number
-    ↓
-one or more notes
-    ↓
-each note contains:
-    fret
-    degree
-    finger
-```
-
-The parser:
-
-- removes HTML tags;
-- decodes HTML entities;
-- separates the individual string definitions using `|`;
-- extracts the string number before `:`;
-- validates that the string number is between 1 and 6;
-- extracts all notes from the string definition;
-- validates fret, scale-degree, and finger values;
-- stores each valid note in the resulting array.
-
-Invalid string definitions and invalid individual notes are skipped rather than causing the entire diagram to fail.
-
----
-
-# Validation
+## Validation
 
 The parser performs basic range validation.
 
@@ -376,12 +305,7 @@ The current accepted range is:
 
 These ranges are deliberately implemented at the parser level so that malformed input does not result in unexpected SVG output.
 
-The limits can be adjusted later if the diagram format needs to support a broader range.
-
-
----
-
-# Scale-Degree Display
+#### Scale-Degree Display
 
 The first renderer displays the **scale degree** inside each note circle.
 
@@ -419,7 +343,7 @@ This distinction is intentional:
 
 ---
 
-# Root Highlighting
+#### Root Highlighting
 
 Scale degree `1` represents the root or tonic of the scale.
 
@@ -492,9 +416,7 @@ with a smaller:
 
 to indicate the suggested finger, or could provide both pieces of information through SVG metadata or accessibility attributes.
 
----
-
-# Ordering of Strings
+## Ordering of Strings
 
 The parser stores strings using their numerical identifiers:
 
@@ -558,9 +480,7 @@ are equivalent.
 
 Whitespace surrounding the entire shortcode content is also removed before parsing.
 
----
-
-# Delimiters
+### Delimiters
 
 The notation uses three different delimiters, each with a specific purpose:
 
@@ -573,8 +493,6 @@ The notation uses three different delimiters, each with a specific purpose:
 | `[]` | contains finger number | `5(1)[1]` |
 
 The syntax is intentionally compact while still keeping each piece of information visually distinguishable.
-
----
 
 # Current Notation Definition
 
@@ -627,119 +545,7 @@ This is a conceptual grammar rather than a formal parser specification, but it d
 
 The parser does not require every string to contain the same number of notes.
 
+### Requirements
+
+This plugin requires Joomla 5+ and PHP versions 8.1+.
 ---
-
-# Development Notes
-
-The plugin is intentionally divided into several conceptual responsibilities:
-
-### 1. Shortcode detection
-
-Find:
-
-```text
-{fretboarddiagram}
-...
-{/fretboardscalediagram}
-```
-
-inside Joomla content.
-
-### 2. Input normalization
-
-Decode HTML entities and remove HTML markup from the shortcode contents.
-
-### 3. Parsing
-
-Convert the compact notation into a structured PHP array.
-
-### 4. Validation
-
-Reject values outside the supported ranges.
-
-### 5. Rendering
-
-Convert the structured data into SVG.
-
-### 6. Content replacement
-
-Replace the original shortcode with the generated SVG.
-
-Keeping these responsibilities separate makes the code easier to test and modify.
-
----
-
-# Internal Data Structure
-
-Each note is represented as:
-
-```php
-[
-    'fret'   => int,
-    'degree' => int,
-    'finger' => int,
-]
-```
-
-Each string contains an array of notes:
-
-```php
-[
-    6 => [
-        [
-            'fret'   => 5,
-            'degree' => 1,
-            'finger' => 1,
-        ],
-        [
-            'fret'   => 8,
-            'degree' => 3,
-            'finger' => 4,
-        ],
-    ],
-]
-```
-
-The complete fretboard is therefore represented as:
-
-```text
-fretboard
-└── string number
-    └── notes
-        ├── fret
-        ├── degree
-        └── finger
-```
-
-This structure is intentionally independent of SVG.
-
-The renderer should consume this structure rather than parse the original shortcode directly.
-
----
-
-# Design Philosophy
-
-The shortcode is intended to be:
-
-- compact enough to type manually;
-- readable enough to understand later;
-- deterministic;
-- easy to parse;
-- independent of presentation;
-- extensible.
-
-For example:
-
-```text
-6:5(1)[1],8(3)[4]
-```
-
-can be understood without seeing the resulting diagram:
-
-```text
-String 6:
-    fret 5  → degree 1 → finger 1
-    fret 8  → degree 3 → finger 4
-```
-
-This makes the shortcode useful as a textual representation of the scale pattern as well as an instruction to the renderer.
