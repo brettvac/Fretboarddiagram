@@ -16,14 +16,12 @@ The plugin recognizes content enclosed by:
 
 and replaces it with a generated SVG representation of a six-string guitar fretboard.
 
-## Complete Example
-
-The supplied example is:
+## Fretboard Scale Diagram Example
 
 ```text
 {fretboarddiagram}
 6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
+{/fretboarddiagram}
 ```
 
 It describes the following notes:
@@ -121,7 +119,7 @@ The current parser accepts fret values from `0` through `30`.
 
 Fret `0` can be used if open-string positions are eventually required by the renderer.
 
-## Scale Degree
+### Scale Degrees
 
 The number inside parentheses identifies the scale degree:
 
@@ -155,7 +153,7 @@ The parser currently permits scale degrees from `0` through `99`.
 
 The renderer currently uses the scale degree as the visible number displayed inside each note circle.
 
-## Finger
+### Finger information
 
 The number inside square brackets identifies the suggested fingering:
 
@@ -188,8 +186,6 @@ The parser retains the fingering information in the parsed data structure.
 The first renderer does **not** currently display the finger number in the circle. It displays the scale degree instead.
 
 The finger information is nevertheless preserved so that a future renderer can display it, use it for accessibility, generate alternate diagram styles, or otherwise make use of the fingering information without changing the shortcode format.
-
----
 
 ### Multiple Notes on a String
 
@@ -260,11 +256,11 @@ and:
 6:5(1)[1],8(3)[4]|5:5(4)[1],7(5)[3]
 ```
 
-## Validation
+### Validation
 
 The parser performs basic range validation.
 
-## String Number
+### String Number
 
 Valid:
 
@@ -279,7 +275,7 @@ Valid:
 
 Invalid values are ignored.
 
-## Fret
+#### Fret
 
 The current accepted range is:
 
@@ -287,7 +283,7 @@ The current accepted range is:
 0–30
 ```
 
-## Scale Degree
+#### Scale Degree
 
 The current accepted range is:
 
@@ -295,7 +291,7 @@ The current accepted range is:
 0–99
 ```
 
-## Finger
+#### Finger
 
 The current accepted range is:
 
@@ -373,49 +369,6 @@ This means that any note encoded as:
 
 is treated as a root note.
 
----
-
-# Fingering Information
-
-Although the current visual representation uses the scale degree as the note label, fingering remains part of the internal representation.
-
-For example:
-
-```text
-8(3)[4]
-```
-
-is stored as:
-
-```php
-[
-    'fret'   => 8,
-    'degree' => 3,
-    'finger' => 4,
-]
-```
-
-This is important because the shortcode contains two separate pieces of musical information:
-
-- **what note/scale degree is being played**
-- **which finger is recommended**
-
-The current renderer chooses to visualize the first.
-
-A future renderer could instead display:
-
-```text
-3
-```
-
-with a smaller:
-
-```text
-4
-```
-
-to indicate the suggested finger, or could provide both pieces of information through SVG metadata or accessibility attributes.
-
 ## Ordering of Strings
 
 The parser stores strings using their numerical identifiers:
@@ -438,9 +391,71 @@ can still be normalized into numerical string order.
 
 The renderer is responsible for mapping those string numbers to their visual positions, with string 6 at the top and string 1 at the bottom.
 
----
+### Delimiters
 
-# Error Handling
+The notation uses three different delimiters, each with a specific purpose:
+
+| Character | Purpose | Example |
+|---|---|---|
+| `:` | separates string number from notes | `6:5(1)[1]` |
+| `,` | separates notes on the same string | `5(1)[1],8(3)[4]` |
+| `\|` | separates strings | `6:... \| 5:...` |
+| `()` | contains scale degree | `5(1)[1]` |
+| `[]` | contains finger number | `5(1)[1]` |
+
+The syntax is intentionally compact while still keeping each piece of information visually distinguishable.
+
+### Chord Diagrams
+
+A chord diagram starts with the chord name, followed by a colon and six string positions separated by semicolons.
+
+For a chord in the open position:
+
+```text
+{fretboarddiagram}B♭5:6[1];8[3];8[4];x;x;x{/fretboarddiagram}
+```
+
+The six positions correspond to the six guitar strings, from the sixth string through the first string.
+
+Each string position can be:
+
+- `x`
+- `o`
+- `0`
+- `fret`
+- `fret[finger]`
+
+`x` indicates a muted string. `o` and `0` indicate an open string. A fret number indicates a fretted note, and a fret number followed by `[finger]` specifies the fretting-hand finger.
+
+For movable chord shapes, the starting fret is placed immediately before the parentheses:
+
+```text
+{fretboarddiagram}E♭5:11(11[1];13[3];13[4];x;x;x){/fretboarddiagram}
+```
+
+Here, `11` before the parentheses indicates that the diagram starts at the 11th fret. The six string positions inside the parentheses then use absolute fret numbers: 11, 13, 13, muted, muted, muted.
+
+The chord name can contain any text before the colon. The parser does not validate the chord name itself.
+
+## Example Inputs
+
+### Two notes on each string
+
+```text
+{fretboarddiagram}
+6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
+{/fretboardscalediagram}
+```
+
+### Three notes on a string
+
+```text
+{fretboarddiagram}
+6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
+{/fretboardscalediagram}
+```
+
+## Error Handling
 
 Malformed input should not prevent the rest of the Joomla article from rendering.
 
@@ -458,9 +473,7 @@ Likewise, an invalid fret or finger value is skipped.
 
 The intention is that a malformed diagram should fail gracefully rather than generate invalid SVG or interfere with unrelated article content.
 
----
-
-# Whitespace
+### Whitespace
 
 Whitespace around the syntax is not significant.
 
@@ -480,72 +493,6 @@ are equivalent.
 
 Whitespace surrounding the entire shortcode content is also removed before parsing.
 
-### Delimiters
-
-The notation uses three different delimiters, each with a specific purpose:
-
-| Character | Purpose | Example |
-|---|---|---|
-| `:` | separates string number from notes | `6:5(1)[1]` |
-| `,` | separates notes on the same string | `5(1)[1],8(3)[4]` |
-| `\|` | separates strings | `6:... \| 5:...` |
-| `()` | contains scale degree | `5(1)[1]` |
-| `[]` | contains finger number | `5(1)[1]` |
-
-The syntax is intentionally compact while still keeping each piece of information visually distinguishable.
-
-# Current Notation Definition
-
-The currently supported notation can be summarized as:
-
-```text
-diagram
-    := stringDefinition ("|" stringDefinition)*
-
-stringDefinition
-    := stringNumber ":" note ("," note)*
-
-stringNumber
-    := 1 | 2 | 3 | 4 | 5 | 6
-
-note
-    := fret "(" degree ")" "[" finger "]"
-
-fret
-    := integer from 0 through 30
-
-degree
-    := integer from 0 through 99
-
-finger
-    := integer from 0 through 9
-```
-
-This is a conceptual grammar rather than a formal parser specification, but it describes the current input format accurately.
-
----
-
-# Example Inputs
-
-## Two notes on each string
-
-```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
-```
-
-## Three notes on a string
-
-```text
-{fretboarddiagram}
-6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
-```
-
-The parser does not require every string to contain the same number of notes.
-
-### Requirements
+## Requirements
 
 This plugin requires Joomla 5+ and PHP versions 8.1+.
----
