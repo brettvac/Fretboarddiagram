@@ -405,7 +405,7 @@ The notation uses three different delimiters, each with a specific purpose:
 
 The syntax is intentionally compact while still keeping each piece of information visually distinguishable.
 
-### Chord Diagrams
+## Chord Diagrams
 
 A chord diagram starts with the chord name, followed by a colon and six string positions separated by semicolons.
 
