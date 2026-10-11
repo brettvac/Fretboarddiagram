@@ -16,6 +16,31 @@ The plugin recognizes content enclosed by:
 
 and replaces it with a generated SVG representation of a six-string guitar fretboard.
 
+### Fretboard Diagram Delimiters
+
+The fretboard diagram notation uses three different delimiters, each with a specific purpose:
+
+| Character | Purpose | Example |
+|---|---|---|
+| `:` | separates string number from notes | `6:5(1)[1]` |
+| `,` | separates notes on the same string | `5(1)[1],8(3)[4]` |
+| `\|` | separates strings | `6:... \| 5:...` |
+| `()` | contains the scale degree | `5(1)[1]` |
+| `[]` | contains the finger number | `5(1)[1]` |
+
+### Chord diagram delimiters
+
+Chord diagram notation uses delimiters to identify the chord name, starting fret, and fingering for each of the six strings.
+
+| Character | Purpose | Example |
+|---|---|---|
+| `:` | Separates the chord name from the string positions | `Ab:...` |
+| `()` | Encloses the six string positions when a starting fret is specified | `Ab:4(...)` |
+| `;` | Separates the six string positions, ordered from the sixth string to the first string | `4[1];6[3];6[4];5[2];4[1];4[1]` |
+| `x` | Indicates a muted string | `x;x;1[1];1[1];1[1];2[2]` |
+| `o` | Indicates an open string | `x;x;o;1[1];o;1[2]` |
+| `[]` | Contains the finger number | `4[1]` |
+
 ## Fretboard Scale Diagram Example
 
 ```text
@@ -41,35 +66,29 @@ The renderer highlights degree `1` to make the root notes immediately distinguis
 
 ### String Numbers
 
-The guitar strings are identified by their standard string numbers:
+The guitar strings are identified by their standard string numbers. String `6` is the low E string and string `1` is the high E string. Only string numbers from `1` through `6` are accepted. Invalid string numbers are ignored by the parser.
 
-```text
-6:
-5:
-4:
-3:
-2:
-1:
+#### Ordering of Strings
+
+Although the input may be written in any order, string 6 is rendered at the bottom of the fretboard and string 1 at the top.
+
+The parser stores strings using their numerical identifiers:
+
+```php
+$parsedFretboard[$stringNum] = [];
 ```
 
-String `6` is the low E string and string `1` is the high E string.
+The resulting array is sorted by string number before it is returned.
 
-The renderer displays the strings in the conventional guitar-diagram orientation:
+This ensures predictable ordering regardless of the order in which strings were supplied in the shortcode.
+
+For example, input such as:
 
 ```text
-6  ← top
-5
-4
-3
-2
-1  ← bottom
+1:5(1)[1] | 6:5(1)[1] | 3:5(3)[2]
 ```
 
-Therefore, although the input may be written in any order, string 6 is rendered at the top of the fretboard and string 1 at the bottom.
-
-Only string numbers from `1` through `6` are accepted.
-
-Invalid string numbers are ignored by the parser.
+can still be normalized into numerical string order.
 
 ### Note Syntax
 
@@ -91,20 +110,6 @@ means:
 - `(1)` — scale degree 1
 - `[1]` — finger 1
 
-Another example:
-
-```text
-8(3)[4]
-```
-
-means:
-
-- `8` — fret 8
-- `(3)` — scale degree 3
-- `[4]` — finger 4
-
-The three values have different purposes and should not be confused.
-
 ### Frets
 
 The number before the parentheses identifies the fret:
@@ -115,9 +120,13 @@ The number before the parentheses identifies the fret:
 fret
 ```
 
-The current parser accepts fret values from `0` through `30`.
+The current parser accepts fret values from `0` through `24`. Use fret `0` to represent an open-string position.
 
-Fret `0` can be used if open-string positions are eventually required by the renderer.
+```text
+1:0(1)[0]
+```
+
+This represents an open first string, with scale degree 1 and finger 0.
 
 ### Scale Degrees
 
@@ -132,28 +141,36 @@ The number inside parentheses identifies the scale degree:
 For example:
 
 ```text
-5(1)[1]
-```
-
-represents scale degree 1.
-
-```text
-7(2)[3]
-```
-
-represents scale degree 2.
-
-```text
 9(3)[4]
 ```
 
 represents scale degree 3.
 
-The parser currently permits scale degrees from `0` through `99`.
+The parser currently permits scale degrees from `1` through `99`. 
 
-The renderer currently uses the scale degree as the visible number displayed inside each note circle.
+#### Root Highlighting
+
+Scale degree `1` represents the root or tonic of the scale. The root note (scale degree 1) is highlighted in a different colour to make it easy to identify on the fretboard.
+
+The renderer gives degree `1` a distinct visual treatment so that root notes can be identified immediately. 
+
+For example:
+
+```text
+5(1)[1]
+```
+
+and:
+
+```text
+7(3)[4]
+```
+
+are both rendered as note positions, but the degree `1` note receives the root highlighting.
 
 ### Finger information
+
+The renderer currently uses the fingering as the visible number displayed inside each note circle.
 
 The number inside square brackets identifies the suggested fingering:
 
@@ -181,11 +198,25 @@ means:
 
 - fret 7, scale degree 3, finger 4
 
-The parser retains the fingering information in the parsed data structure.
+The parser accepts finger values from 0 through 5, as well as T to represent the thumb.
 
-The first renderer does **not** currently display the finger number in the circle. It displays the scale degree instead.
+The standard finger numbers indicate the fretting-hand fingers:
 
-The finger information is nevertheless preserved so that a future renderer can display it, use it for accessibility, generate alternate diagram styles, or otherwise make use of the fingering information without changing the shortcode format.
+1 — Index finger
+
+2 — Middle finger
+
+3 — Ring finger
+
+4 — Little finger
+
+0 — Open string or no fretting-hand finger assigned
+
+T — Thumb
+
+The finger number is displayed inside the note circle. The note's colour is determined by its scale degree, not its fingering. Scale degree 1 is highlighted in a different colour to distinguish the root note from the other notes.
+
+Important: The current parser requires the finger information in square brackets. A note without this information will not be recognized.
 
 ### Multiple Notes on a String
 
@@ -205,14 +236,6 @@ means that string 6 contains two notes:
 ```
 
 The comma is therefore a **note separator**.
-
-Additional notes can be added in the same way:
-
-```text
-6:5(1)[1],7(2)[2],8(3)[4],10(5)[4]
-```
-
----
 
 ### Separating Strings
 
@@ -240,182 +263,40 @@ and:
 5:5(4)[1],7(5)[3]
 ```
 
+### Example Inputs
+
 A complete six-string diagram therefore consists of six string definitions separated by pipes.
 
-Whitespace around the pipe is optional.
-
-Both of these forms are equivalent:
+#### Two notes on each string
 
 ```text
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3]
+{fretboarddiagram}
+6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
+{/fretboardscalediagram}
 ```
 
-and:
+#### Three notes on a string
 
 ```text
-6:5(1)[1],8(3)[4]|5:5(4)[1],7(5)[3]
+{fretboarddiagram}
+6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
+{/fretboardscalediagram}
 ```
-
-### Validation
-
-The parser performs basic range validation.
-
-### String Number
-
-Valid:
-
-```text
-1
-2
-3
-4
-5
-6
-```
-
-Invalid values are ignored.
-
-#### Fret
-
-The current accepted range is:
-
-```text
-0–30
-```
-
-#### Scale Degree
-
-The current accepted range is:
-
-```text
-0–99
-```
-
-#### Finger
-
-The current accepted range is:
-
-```text
-0–9
-```
-
-These ranges are deliberately implemented at the parser level so that malformed input does not result in unexpected SVG output.
-
-#### Scale-Degree Display
-
-The first renderer displays the **scale degree** inside each note circle.
-
-For example:
-
-```text
-5(1)[1]
-```
-
-produces a note circle containing:
-
-```text
-1
-```
-
-rather than:
-
-```text
-1
-```
-
-because the displayed value is the scale degree.
-
-The finger number `[1]` is retained in the parsed data but is not the primary visual label in this renderer.
-
-This distinction is intentional:
-
-```text
-5(1)[1]
-│ │  │
-│ │  └── fingering information
-│ └────── scale degree displayed in the circle
-└──────── fret position
-```
-
----
-
-#### Root Highlighting
-
-Scale degree `1` represents the root or tonic of the scale.
-
-The renderer gives degree `1` a distinct visual treatment so that root notes can be identified immediately.
-
-For example:
-
-```text
-5(1)[1]
-```
-
-and:
-
-```text
-7(3)[4]
-```
-
-are both rendered as note positions, but the degree `1` note receives the root highlighting.
-
-The root is determined from the scale-degree value rather than from the fret or finger number.
-
-This means that any note encoded as:
-
-```text
-(followed by degree 1)
-```
-
-is treated as a root note.
-
-## Ordering of Strings
-
-The parser stores strings using their numerical identifiers:
-
-```php
-$parsedFretboard[$stringNum] = [];
-```
-
-The resulting array is sorted by string number before it is returned.
-
-This ensures predictable ordering regardless of the order in which strings were supplied in the shortcode.
-
-For example, input such as:
-
-```text
-1:5(1)[1] | 6:5(1)[1] | 3:5(3)[2]
-```
-
-can still be normalized into numerical string order.
-
-The renderer is responsible for mapping those string numbers to their visual positions, with string 6 at the top and string 1 at the bottom.
-
-### Delimiters
-
-The notation uses three different delimiters, each with a specific purpose:
-
-| Character | Purpose | Example |
-|---|---|---|
-| `:` | separates string number from notes | `6:5(1)[1]` |
-| `,` | separates notes on the same string | `5(1)[1],8(3)[4]` |
-| `\|` | separates strings | `6:... \| 5:...` |
-| `()` | contains scale degree | `5(1)[1]` |
-| `[]` | contains finger number | `5(1)[1]` |
-
-The syntax is intentionally compact while still keeping each piece of information visually distinguishable.
 
 ## Chord Diagrams
 
 A chord diagram starts with the chord name, followed by a colon and six string positions separated by semicolons.
 
-For a chord in the open position:
+### String positions
 
-```text
-{fretboarddiagram}B♭5:6[1];8[3];8[4];x;x;x{/fretboarddiagram}
-```
+The six positions are always listed in this order:
 
-The six positions correspond to the six guitar strings, from the sixth string through the first string.
+1. Sixth string (low E)
+2. Fifth string (A)
+3. Fourth string (D)
+4. Third string (G)
+5. Second string (B)
+6. First string (high E)
 
 Each string position can be:
 
@@ -425,7 +306,21 @@ Each string position can be:
 - `fret`
 - `fret[finger]`
 
-`x` indicates a muted string. `o` and `0` indicate an open string. A fret number indicates a fretted note, and a fret number followed by `[finger]` specifies the fretting-hand finger.
+`x` indicates a muted string. `o` and `0` indicate an open string. 
+
+A fret number indicates a fretted note, and a fret number followed by `[finger]` specifies the fretting-hand finger.
+
+### Open-position chords
+
+For a chord in the open position:
+
+```text
+{fretboarddiagram}B♭5:6[1];8[3];8[4];x;x;x{/fretboarddiagram}
+```
+
+The six positions correspond to the six guitar strings, from the sixth string through the first string.
+
+## Movable chords
 
 For movable chord shapes, the starting fret is placed immediately before the parentheses:
 
@@ -436,24 +331,6 @@ For movable chord shapes, the starting fret is placed immediately before the par
 Here, `11` before the parentheses indicates that the diagram starts at the 11th fret. The six string positions inside the parentheses then use absolute fret numbers: 11, 13, 13, muted, muted, muted.
 
 The chord name can contain any text before the colon. The parser does not validate the chord name itself.
-
-## Example Inputs
-
-### Two notes on each string
-
-```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
-```
-
-### Three notes on a string
-
-```text
-{fretboarddiagram}
-6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
-```
 
 ## Error Handling
 
@@ -476,6 +353,8 @@ The intention is that a malformed diagram should fail gracefully rather than gen
 ### Whitespace
 
 Whitespace around the syntax is not significant.
+
+Whitespace around the pipe is optional.
 
 For example:
 
