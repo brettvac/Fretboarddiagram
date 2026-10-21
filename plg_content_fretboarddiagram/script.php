@@ -1,9 +1,10 @@
 <?php
 /**
- * Installation/update script for the Fretboard Diagram content plugin.
+ * @package     Joomla.Site
+ * @subpackage  plg_content_fretboarddiagram
  *
- * @package    Fretboard Diagram Plugin
- * @license    GNU General Public License version 2
+ * @version     1.3
+ * @license     GNU General Public License version 2
  */
 
 defined('_JEXEC') or die;

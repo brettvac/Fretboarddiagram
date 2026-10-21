@@ -3,6 +3,17 @@
     <changelog>
         <element>fretboarddiagram</element>
         <type>plugin</type>
+        <version>1.3</version>
+        <addition>
+            <item>Added support for the 0[0] syntax to represent open strings in chord diagrams.</item>
+        </addition>
+        <change>
+            <item>Updated the docblock headers to follow Joomla! coding conventions for package and subpackage declarations.</item>
+        </change>
+    </changelog>
+    <changelog>
+        <element>fretboarddiagram</element>
+        <type>plugin</type>
         <version>1.2</version>
         <addition>
             <item>Added support for displaying open strings in scale diagrams, with open-string notes rendered between the string label and the nut.</item>

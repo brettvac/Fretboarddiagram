@@ -1,7 +1,10 @@
 <?php
 /**
- * @package    Fretboard Diagram Plugin
- * @license    GNU General Public License version 2
+ * @package     Joomla.Site
+ * @subpackage  plg_content_fretboarddiagram
+ *
+ * @version     1.3
+ * @license     GNU General Public License version 2
  */
 
 // No direct access

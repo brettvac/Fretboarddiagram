@@ -1,8 +1,10 @@
 <?php
 /**
- * @package    Fretboard Diagram Content Plugin
- * @version    1.2
- * @license    GNU General Public License version 2
+ * @package     Joomla.Site
+ * @subpackage  plg_content_fretboarddiagram
+ *
+ * @version     1.3
+ * @license     GNU General Public License version 2
  */
 namespace Naftee\Plugin\Content\Fretboarddiagram\Extension;
 
@@ -119,10 +121,7 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
     }
 
     /**
-     * Parses the six string positions of a chord.
-     *
-     * Each position can be x for muted, o or 0 for open, or a fret number optionally
-     * followed by [finger] to specify the fretting-hand finger.
+     * Parses the six string positions of a chord. Each position can be x for muted, o, 0, or 0[0] for open, or a fret number optionally followed by [finger] to specify the fretting-hand finger.
      */
     private function parseChordStrings(string $stringsData): array
     {
@@ -138,7 +137,10 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
 
             if (strcasecmp($part, 'x') === 0) {
                 $strings[] = ['state' => 'muted'];
-            } elseif (strcasecmp($part, 'o') === 0 || $part === '0') {
+            } elseif (
+                strcasecmp($part, 'o') === 0
+                || preg_match('/^0(?:\[0\])?$/', $part)
+            ) {
                 $strings[] = ['state' => 'open'];
             } elseif (preg_match('/^(\d+)(?:\[(\d+)\])?$/', $part, $m)) {
                 $fret   = (int) $m[1];
