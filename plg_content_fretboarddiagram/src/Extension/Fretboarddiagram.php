@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  plg_content_fretboarddiagram
  *
- * @version     1.3
+ * @version     1.4
  * @license     GNU General Public License version 2
  */
 namespace Naftee\Plugin\Content\Fretboarddiagram\Extension;
@@ -17,7 +17,7 @@ use Joomla\Event\SubscriberInterface;
 /**
  * Content plugin which replaces a Fretboard Scale Diagram shortcode with an inline SVG guitar fretboard diagram.
  */
-final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
+class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
 {
     protected $autoloadLanguage = true;
 
@@ -188,19 +188,31 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             40.975473,
         ];
 
-        $svg = [];
         $svg[] = '<?xml version="1.0" encoding="UTF-8"?>';
-
+        
         $height = (int) round($width * (88 / 62));
-
+        
         if ($startFret === 1) {
            $svg[] = '<svg class="fretboard-chord-svg" xmlns="http://www.w3.org/2000/svg" width="' . $width . '" height="' . $height . '" viewBox="0 0 62 88">';
         } else {
            $offsetWidth = $width + 39;
+           
            $svg[] = '<svg class="fretboard-chord-svg fretboard-chord-svg--offset" xmlns="http://www.w3.org/2000/svg" width="' . $offsetWidth . '" height="' . $height . '" viewBox="-10 0 72 88">';
         }
 
-        $svg[] = '  <text class="fretboard-chord-name" x="30.9" y="18" text-anchor="middle">' . $this->escape($name) . '</text>';
+        $nameLength = mb_strlen($name, 'UTF-8');
+
+        // Values are in SVG user units
+        $fontSize = match (true) {
+            $nameLength <= 5  => 11,
+            $nameLength <= 7  => 9,
+            $nameLength <= 9  => 7,
+            $nameLength <= 11 => 5,
+            default           => 10,
+        };
+
+        $svg[] = '  <text class="fretboard-chord-name" x="30.9" y="18" text-anchor="middle" style="font-size:' . $fontSize . 'px">' . $this->escape($name) . '</text>';
+            
         $svg[] = '  <g class="fretboard-chord-group" transform="translate(0 44)">';
 
         // Base fretboard grid
@@ -424,12 +436,13 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
                 }
             }
         }
+        
         // Open strings do not count as a fret position.
         if ($frets === [] && !$hasOpenStrings) {
             return '<!-- Fretboard scale diagram: no valid notes found. -->';
         }
-        // When open strings are present, the nut is always the leftmost fretboard line
-        // and the first displayed fret is fret 1.
+        
+        // When open strings are present, the nut is always the leftmost fretboard line and the first displayed fret is fret 1.
         if ($hasOpenStrings) {
             $displayStart = 1;
             $maxFret = $frets !== [] ? max($frets) : 1;
@@ -438,25 +451,28 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             $maxFret = max($frets);
             $displayStart = $minFret;
         }
-        // Normally show five fret positions, with one fret of context immediately after the highest plotted fret.
-        $displayEnd = max($maxFret + 1, $displayStart + 4);
-        // Prevent an accidentally huge diagram if a very wide range is supplied.
-        if (($displayEnd - $displayStart) > 12) {
-            $displayEnd = $maxFret + 1;
-        }
-        $fretCount = max(1, $displayEnd - $displayStart + 1);
+
+        // Calculate the actual fret span of the scale diagram, displaying a minimum of four frets.
+        $fretsSpanned = $maxFret - $displayStart + 1;
+        $fretCount    = min(24, max(4, $fretsSpanned));
+
+        $displayEnd = $displayStart + $fretCount - 1;
+
         // Internal SVG coordinate system. All drawing coordinates are based on 760 × 330, but the SVG itself can be rendered at any configured width while retaining this aspect ratio.
         $viewBoxWidth  = 760;
         $viewBoxHeight = 330;
+        
         // Configured displayed width.
         $width = (int) $this->params->get('scalediagramwidth', $viewBoxWidth);
         if ($width < 1) {
             $width = $viewBoxWidth;
         }
+        
         // Preserve the original 760 × 330 aspect ratio.
         $height = round(
             $width * $viewBoxHeight / $viewBoxWidth
         );
+        
         // Fretboard layout within the internal 760 × 330 coordinate system.
         $left   = 92;
         $right  = 28;
@@ -492,17 +508,19 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
         // Fret lines.
         for ($i = 0; $i <= $fretCount; $i++) {
             $x = $left + ($i * $fretWidth);
+            
             // When open strings are present, the leftmost line is the nut.
             $isNut = ($hasOpenStrings && $i === 0);
             $edge  = ($i === 0 || $i === $fretCount);
             $svg[] = '<line class="fretboard-scale-fret-line'
                 . ($edge ? ' fretboard-scale-fret-line--edge' : '')
-                . ($isNut ? ' fretboard-scale-fret-line--nut' : '')
+                . ($isNut ? ' fretboard-scale-fret-line--nut' : '')  
                 . '"'
                 . ' x1="' . $this->number($x) . '"'
-                . ' y1="' . $this->number($boardY) . '"'
+                // Extend the nut 1.5 SVG units beyond the first and sixth strings, covering their entire 3-unit thickness
+                . ' y1="' . $this->number($isNut ? $boardY - 1.5 : $boardY) . '"'
                 . ' x2="' . $this->number($x) . '"'
-                . ' y2="' . $this->number($boardY + $boardH) . '"/>';
+                . ' y2="' . $this->number($isNut ? $boardY + $boardH + 1.5 : $boardY + $boardH) . '"/>';
         }
         // Strings: 1st at top, 6th at bottom.
         for ($string = 1; $string < 7; $string++) {
@@ -510,9 +528,10 @@ final class Fretboarddiagram extends CMSPlugin implements SubscriberInterface
             $y   = $top + ($row * $stringGap);
             $thickString = in_array($string, [6, 5], true);
             $svg[] = '<line class="fretboard-scale-string'
-                . ($thickString ? ' fretboard-scale-string--thick' : '')
+                . ($thickString ? ' fretboard-scale-string--thick' : '') 
                 . '"'
-                . ' x1="' . $this->number($boardX) . '"'
+                // The nut has a 5-unit stroke, so its right edge is 2.5 units beyond its centerline. Stop strings at the right edge of the nut when open strings are present.
+                . ' x1="' . $this->number($boardX + ($hasOpenStrings ? 2.5 : 0)) . '"' 
                 . ' y1="' . $this->number($y) . '"'
                 . ' x2="' . $this->number($boardX + $boardW) . '"'
                 . ' y2="' . $this->number($y) . '"/>';

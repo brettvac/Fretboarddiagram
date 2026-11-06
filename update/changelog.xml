@@ -3,6 +3,22 @@
     <changelog>
         <element>fretboarddiagram</element>
         <type>plugin</type>
+        <version>1.4</version>
+        <change>
+            <item>Changed chord names to use a fixed-width monospace font.</item>
+            <item>Reduced the chord name font size and added automatic font-size adjustments for longer chord names.</item>
+            <item>Removed the extra fret from scale diagrams spanning more than four frets, while maintaining a minimum of four displayed frets.</item>
+            <item>Corrected string lengths so strings stop at the nut.</item>
+            <item>Extended the nut beyond the first and sixth strings.</item>
+            <item><![CDATA[Removed the <code>final</code> declaration from the plugin class.]]></item>
+        </change>
+        <note>
+            <item>Added explanatory code comments.</item>
+        </note>
+    </changelog>
+    <changelog>
+        <element>fretboarddiagram</element>
+        <type>plugin</type>
         <version>1.3</version>
         <addition>
             <item>Added support for the 0[0] syntax to represent open strings in chord diagrams.</item>

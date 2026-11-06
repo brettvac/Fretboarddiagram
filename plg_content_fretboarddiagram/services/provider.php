@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  plg_content_fretboarddiagram
  *
- * @version     1.3
+ * @version     1.4
  * @license     GNU General Public License version 2
  */
 
