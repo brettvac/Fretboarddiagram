@@ -8,10 +8,8 @@ Use this plugin to easily display guitar scale patterns and/or chord diagrams di
 
 The plugin recognizes content enclosed by:
 
-```text
-{fretboarddiagram}
-...
-{/fretboardediagram}
+```
+{fretboarddiagram}...{/fretboardediagram}
 ```
 
 and replaces it with a generated SVG representation of a six-string guitar fretboard.
@@ -44,9 +42,7 @@ Chord diagram notation uses delimiters to identify the chord name, starting fret
 ## Fretboard Scale Diagram Example
 
 ```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboarddiagram}
+{fretboarddiagram}6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]{/fretboarddiagram}
 ```
 
 It describes the following notes:
@@ -270,17 +266,13 @@ A complete six-string diagram therefore consists of six string definitions separ
 #### Two notes on each string
 
 ```text
-{fretboarddiagram}
-6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
+{fretboarddiagram}6:5(1)[1],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]{/fretboardscalediagram}
 ```
 
 #### Three notes on a string
 
 ```text
-{fretboarddiagram}
-6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]
-{/fretboardscalediagram}
+{fretboarddiagram}6:5(1)[1],7(2)[2],8(3)[4] | 5:5(4)[1],7(5)[3] | 4:5(7)[1],7(1)[3] | 3:5(3)[1],7(4)[3] | 2:5(5)[1],8(7)[4] | 1:5(1)[1],8(3)[4]{/fretboardscalediagram}
 ```
 
 ## Chord Diagrams
